@@ -1,5 +1,9 @@
 {
   "prefix": "!",
+  "ownerID": "YOUR_MAIN_ACCOUNT_ID_HERE",
+  "whitelist": [
+    "YOUR_MAIN_ACCOUNT_ID_HERE"
+  ],
   "statusColor": "#8B5CF6",
   "statusColorName": "violet",
   "streamingStatus": {
