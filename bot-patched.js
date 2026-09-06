@@ -112,7 +112,6 @@ function formatMaigreatResults(results, username) {
 }
 
 client.on('messageCreate', async (message) => {
-  if (message.author.id !== client.user.id) return;
   if (!message.content.startsWith(config.prefix)) return;
   
   const args = message.content.slice(config.prefix.length).trim().split(/ +/);
