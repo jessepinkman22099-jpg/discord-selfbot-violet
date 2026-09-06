@@ -1,0 +1,25 @@
+{
+  "prefix": "!",
+  "statusColor": "#8B5CF6",
+  "statusColorName": "violet",
+  "streamingStatus": {
+    "type": "STREAMING",
+    "name": "Streaming with violet vibes",
+    "url": "https://twitch.tv/yourchannelname"
+  },
+  "activities": [
+    {
+      "name": "Streaming in Violet",
+      "type": "STREAMING",
+      "url": "https://twitch.tv/yourchannelname"
+    },
+    {
+      "name": "Playing Games",
+      "type": "PLAYING"
+    },
+    {
+      "name": "Watching Streams",
+      "type": "WATCHING"
+    }
+  ]
+}
