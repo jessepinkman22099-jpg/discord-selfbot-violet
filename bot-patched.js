@@ -28,13 +28,22 @@ function hasPermission(userId) {
   return config.whitelist.includes(userId);
 }
 
-client.on('ready', () => {
+client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}`);
   console.log(`Selfbot is running`);
   console.log(`Owner ID: ${config.ownerID}`);
   console.log(`Whitelist: ${config.whitelist.length} user(s)\n`);
+  
   setPresence();
   setInterval(setPresence, 10000);
+  
+  // Ping owner when bot comes online
+  try {
+    const owner = await client.users.fetch(config.ownerID);
+    owner.send(`Selfbot is now online`).catch(err => console.log('Could not DM owner'));
+  } catch (err) {
+    console.log('Could not fetch owner');
+  }
 });
 
 function setPresence() {
@@ -43,7 +52,7 @@ function setPresence() {
   client.user.setPresence({
     activities: [randomActivity],
     status: 'online'
-  }).catch(err => console.error('Error setting presence:', err));
+  });
 }
 
 async function runMaigreatSearch(username, message) {
@@ -118,12 +127,11 @@ client.on('messageCreate', async (message) => {
   }
   
   if (command === 'stream') {
-    const gameName = args.join(' ') || 'Streaming in Violet';
+    const gameName = args.join(' ') || 'Streaming';
     await client.user.setPresence({
-      activities: [{ name: gameName, type: 'STREAMING', url: 'https://twitch.tv/yourchannelname' }],
+      activities: [{ name: gameName, type: 'STREAMING', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }],
       status: 'online'
     });
-    await message.edit(`Now streaming: ${gameName}`);
   }
   
   if (command === 'play') {
@@ -132,7 +140,6 @@ client.on('messageCreate', async (message) => {
       activities: [{ name: gameName, type: 'PLAYING' }],
       status: 'online'
     });
-    await message.edit(`Now playing: ${gameName}`);
   }
   
   if (command === 'watch') {
@@ -141,7 +148,6 @@ client.on('messageCreate', async (message) => {
       activities: [{ name: content, type: 'WATCHING' }],
       status: 'online'
     });
-    await message.edit(`Now watching: ${content}`);
   }
   
   if (command === 'listen') {
@@ -150,7 +156,6 @@ client.on('messageCreate', async (message) => {
       activities: [{ name: content, type: 'LISTENING' }],
       status: 'online'
     });
-    await message.edit(`Now listening to: ${content}`);
   }
   
   if (command === 'status') {
@@ -158,7 +163,6 @@ client.on('messageCreate', async (message) => {
     const validStatuses = ['online', 'idle', 'dnd', 'invisible'];
     if (validStatuses.includes(statusArg)) {
       await client.user.setStatus(statusArg);
-      await message.edit(`Status changed to: ${statusArg}`);
     } else {
       await message.edit(`Invalid status. Use: online, idle, dnd, invisible`);
     }
@@ -198,7 +202,7 @@ client.on('messageCreate', async (message) => {
   if (command === 'help') {
     const helpEmbed = new MessageEmbed()
       .setTitle(`Commands`)
-      .addField(`Activity`, `${config.prefix}stream\n${config.prefix}play\n${config.prefix}watch\n${config.prefix}listen\n${config.prefix}status`, false)
+      .addField(`Activity`, `${config.prefix}stream\n${config.prefix}play\n${config.prefix}watch\n${config.prefix}listen`, false)
       .addField(`Search`, `${config.prefix}osint <username>\n${config.prefix}search <username>`, false)
       .setColor('#2F3136')
       .setTimestamp();
