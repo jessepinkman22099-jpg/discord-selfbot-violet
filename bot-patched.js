@@ -201,4 +201,12 @@ client.on('messageCreate', async (message) => {
 
 client.on('error', (err) => console.error('Client error:', err));
 process.on('unhandledRejection', (err) => console.error('Unhandled rejection:', err));
-client.login(process.env.DISCORD_TOKEN);
+
+// Use DISCORD_TOKEN_MAIN from .env
+const token = process.env.DISCORD_TOKEN_MAIN;
+if (!token) {
+  console.error('Error: DISCORD_TOKEN_MAIN not found in .env file');
+  process.exit(1);
+}
+
+client.login(token);
