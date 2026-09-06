@@ -216,4 +216,64 @@ client.on('messageCreate', async (message) => {
       await message.edit(`✅ Added \`${userId}\` to whitelist`);
     } else if (subcommand === 'remove') {
       if (!userId) {
-        await message.edit(`❌ Usage: ${config.prefix}whitelist remove <user_id>`);\n        return;\n      }\n      const index = config.whitelist.indexOf(userId);\n      if (index === -1) {\n        await message.edit(`❌ User not in whitelist!`);\n        return;\n      }\n      config.whitelist.splice(index, 1);\n      await message.edit(`✅ Removed \`${userId}\` from whitelist`);\n    } else if (subcommand === 'list') {\n      await message.edit(`📋 **Whitelist:**\\n\`\`\`\\n${config.whitelist.join('\\n')}\\n\`\`\``);\n    }\n  }\n  \n  if (command === 'osint' || command === 'search') {\n    const username = args[0];\n    if (!username) {\n      await message.edit(`❌ Usage: ${config.prefix}osint <username>`);\n      return;\n    }\n    \n    await message.edit(`🔍 **OSINT Search Initiated**\\n\\nTarget: \`${username}\`\\n⏳ Running Maigret...\\n📡 Scanning 3000+ platforms...`);\n    \n    try {\n      const results = await runMaigreatSearch(username, message);\n      const formattedResults = formatMaigreatResults(results, username);\n      \n      if (formattedResults.length > 2000) {\n        const chunks = [];\n        let currentChunk = '';\n        formattedResults.split('\\n').forEach(line => {\n          if ((currentChunk + line + '\\n').length > 1900) {\n            chunks.push(currentChunk);\n            currentChunk = line + '\\n';\n          } else {\n            currentChunk += line + '\\n';\n          }\n        });\n        if (currentChunk) chunks.push(currentChunk);\n        for (let i = 0; i < chunks.length; i++) {\n          if (i === 0) await message.edit(chunks[i]);\n          else await message.channel.send(chunks[i]);\n        }\n      } else {\n        await message.edit(formattedResults);\n      }\n    } catch (error) {\n      await message.edit(`❌ Error: ${error.message}\\n\\n**Setup Maigret:**\\n\`\`\`bash\\npip install maigret\\n\`\`\``);\n    }\n  }\n  \n  if (command === 'help') {\n    const helpText = `🎮 **Discord Selfbot Commands**\\n\\n**Activity:**\\n\`${config.prefix}stream\` \`${config.prefix}play\` \`${config.prefix}watch\` \`${config.prefix}listen\` \`${config.prefix}status\`\\n\\n**OSINT (3000+ sites):**\\n\`${config.prefix}osint <username>\`\\n\\n**Owner:**\\n\`${config.prefix}changeprefix\` \`${config.prefix}whitelist add/remove/list\``;\n    await message.edit(helpText);\n  }\n});\n\nclient.on('error', (err) => console.error('❌ Client error:', err));\nprocess.on('unhandledRejection', (err) => console.error('❌ Unhandled rejection:', err));\nclient.login(process.env.DISCORD_TOKEN);
+        await message.edit(`❌ Usage: ${config.prefix}whitelist remove <user_id>`);
+        return;
+      }
+      const index = config.whitelist.indexOf(userId);
+      if (index === -1) {
+        await message.edit(`❌ User not in whitelist!`);
+        return;
+      }
+      config.whitelist.splice(index, 1);
+      await message.edit(`✅ Removed \`${userId}\` from whitelist`);
+    } else if (subcommand === 'list') {
+      await message.edit(`📋 **Whitelist:**\n\`\`\`\n${config.whitelist.join('\n')}\n\`\`\``);
+    }
+  }
+  
+  if (command === 'osint' || command === 'search') {
+    const username = args[0];
+    if (!username) {
+      await message.edit(`❌ Usage: ${config.prefix}osint <username>`);
+      return;
+    }
+    
+    await message.edit(`🔍 **OSINT Search Initiated**\n\nTarget: \`${username}\`\n⏳ Running Maigret...\n📡 Scanning 3000+ platforms...`);
+    
+    try {
+      const results = await runMaigreatSearch(username, message);
+      const formattedResults = formatMaigreatResults(results, username);
+      
+      if (formattedResults.length > 2000) {
+        const chunks = [];
+        let currentChunk = '';
+        formattedResults.split('\n').forEach(line => {
+          if ((currentChunk + line + '\n').length > 1900) {
+            chunks.push(currentChunk);
+            currentChunk = line + '\n';
+          } else {
+            currentChunk += line + '\n';
+          }
+        });
+        if (currentChunk) chunks.push(currentChunk);
+        for (let i = 0; i < chunks.length; i++) {
+          if (i === 0) await message.edit(chunks[i]);
+          else await message.channel.send(chunks[i]);
+        }
+      } else {
+        await message.edit(formattedResults);
+      }
+    } catch (error) {
+      await message.edit(`❌ Error: ${error.message}\n\n**Setup Maigret:**\n\`\`\`bash\npip install maigret\n\`\`\``);
+    }
+  }
+  
+  if (command === 'help') {
+    const helpText = `🎮 **Discord Selfbot Commands**\n\n**Activity:**\n\`${config.prefix}stream\` \`${config.prefix}play\` \`${config.prefix}watch\` \`${config.prefix}listen\` \`${config.prefix}status\`\n\n**OSINT (3000+ sites):**\n\`${config.prefix}osint <username>\`\n\n**Owner:**\n\`${config.prefix}changeprefix\` \`${config.prefix}whitelist add/remove/list\``;
+    await message.edit(helpText);
+  }
+});
+
+client.on('error', (err) => console.error('❌ Client error:', err));
+process.on('unhandledRejection', (err) => console.error('❌ Unhandled rejection:', err));
+client.login(process.env.DISCORD_TOKEN);
