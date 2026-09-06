@@ -122,6 +122,15 @@ client.on('messageCreate', async (message) => {
     return;
   }
   
+  if (command === 'help') {
+    try {
+      await message.delete();
+    } catch (err) {
+      console.log('Could not delete message');
+    }
+    return;
+  }
+  
   if (command === 'stream') {
     const gameName = args.join(' ') || 'Streaming';
     await client.user.setPresence({
@@ -187,16 +196,6 @@ client.on('messageCreate', async (message) => {
       
       await message.channel.send({ embeds: [errorEmbed] });
     }
-  }
-  
-  if (command === 'help') {
-    const helpEmbed = new MessageEmbed()
-      .setTitle(`Commands`)
-      .addField(`Activity`, `${config.prefix}stream\n${config.prefix}play\n${config.prefix}watch\n${config.prefix}listen`, false)
-      .addField(`Search`, `${config.prefix}osint <username>\n${config.prefix}search <username>`, false)
-      .setColor('#2F3136');
-    
-    await message.channel.send({ embeds: [helpEmbed] });
   }
 });
 
