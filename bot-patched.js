@@ -40,7 +40,7 @@ client.on('ready', async () => {
   // Ping owner when bot comes online
   try {
     const owner = await client.users.fetch(config.ownerID);
-    owner.send(`Selfbot is now online`).catch(err => console.log('Could not DM owner'));
+    owner.send(`Selfbot is now online`);
   } catch (err) {
     console.log('Could not fetch owner');
   }
@@ -55,14 +55,12 @@ function setPresence() {
   });
 }
 
-async function runMaigreatSearch(username, message) {
+async function runMaigreatSearch(username) {
   return new Promise(async (resolve, reject) => {
     const maigretProcess = spawn('maigret', [username, '--json']);
     let output = '';
-    let errorOutput = '';
     
     maigretProcess.stdout.on('data', (data) => { output += data.toString(); });
-    maigretProcess.stderr.on('data', (data) => { errorOutput += data.toString(); });
     
     maigretProcess.on('close', (code) => {
       if (code !== 0) {
@@ -122,14 +120,13 @@ client.on('messageCreate', async (message) => {
   const authorId = message.author.id;
   
   if (!hasPermission(authorId)) {
-    await message.edit(`You don't have permission!`);
     return;
   }
   
   if (command === 'stream') {
     const gameName = args.join(' ') || 'Streaming';
     await client.user.setPresence({
-      activities: [{ name: gameName, type: 'STREAMING', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }],
+      activities: [{ name: gameName, type: 'STREAMING' }],
       status: 'online'
     });
   }
@@ -163,22 +160,17 @@ client.on('messageCreate', async (message) => {
     const validStatuses = ['online', 'idle', 'dnd', 'invisible'];
     if (validStatuses.includes(statusArg)) {
       await client.user.setStatus(statusArg);
-    } else {
-      await message.edit(`Invalid status. Use: online, idle, dnd, invisible`);
     }
   }
   
   if (command === 'osint' || command === 'search') {
     const username = args[0];
     if (!username) {
-      await message.edit(`Usage: ${config.prefix}osint <username>`);
       return;
     }
     
-    await message.edit(`Scanning for: ${username}\nRunning Maigret...`);
-    
     try {
-      const results = await runMaigreatSearch(username, message);
+      const results = await runMaigreatSearch(username);
       const formattedResults = formatMaigreatResults(results, username);
       
       const embed = new MessageEmbed()
@@ -187,15 +179,14 @@ client.on('messageCreate', async (message) => {
         .setColor('#2F3136')
         .setTimestamp();
       
-      await message.edit({ embeds: [embed] });
+      await message.channel.send({ embeds: [embed] });
     } catch (error) {
       const errorEmbed = new MessageEmbed()
         .setTitle(`Search Error`)
-        .setDescription(`Error: ${error.message}\n\nSetup Maigret:\npip install maigret`)
-        .setColor('#2F3136')
-        .setTimestamp();
+        .setDescription(`Error: ${error.message}`)
+        .setColor('#2F3136');
       
-      await message.edit({ embeds: [errorEmbed] });
+      await message.channel.send({ embeds: [errorEmbed] });
     }
   }
   
@@ -204,10 +195,9 @@ client.on('messageCreate', async (message) => {
       .setTitle(`Commands`)
       .addField(`Activity`, `${config.prefix}stream\n${config.prefix}play\n${config.prefix}watch\n${config.prefix}listen`, false)
       .addField(`Search`, `${config.prefix}osint <username>\n${config.prefix}search <username>`, false)
-      .setColor('#2F3136')
-      .setTimestamp();
+      .setColor('#2F3136');
     
-    await message.edit({ embeds: [helpEmbed] });
+    await message.channel.send({ embeds: [helpEmbed] });
   }
 });
 
